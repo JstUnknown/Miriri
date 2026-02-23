@@ -19,95 +19,133 @@
 </head>
 <body>
 
-<canvas id="game" width="400" height="400"></canvas>
+<canvas id="game" width="800" height="600"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
-const size = 20;
+    const size = 55;
+    const tileCount = canvas.width / size;
 
-let horse = {
-  x: 200,
-  y: 200,
-  speed: 2,
-  dx: 2,
-  dy: 0
-};
+    let gameOver = false;
+    let score = 0;
 
-let apple = {
-  x: 100,
-  y: 100
-};
+    let horse = {
+      x: 5 * size,
+      y: 5 * size,
+      dx: 0,
+      dy: 0
+    };
 
-let score = 0;
+    let apple = {
+      x: 8 * size,
+      y: 8 * size
+    };
 
-function drawHorse() {
-  ctx.fillStyle = "brown";
-  ctx.fillRect(horse.x, horse.y, size, size);
-}
+    // ===== SPRITES =====
+    const sprites = [];
+    for (let i = 0; i <= 4; i++) { // AGORA vai até 4
+      const img = new Image();
+      img.src = `assets/sprite_${i}.png`;
+      sprites.push(img);
+    }
 
-function drawApple() {
-  ctx.fillStyle = "red";
-  ctx.fillRect(apple.x, apple.y, size, size);
-}
+    let frame = 0;
+    let frameDelay = 0;
+    let direction = "right";
+    // ====================
 
-function moveHorse() {
-  horse.x += horse.dx;
-  horse.y += horse.dy;
+    function drawHorse() {
 
-  // colisão com parede
-  if (
-    horse.x < 0 ||
-    horse.y < 0 ||
-    horse.x + size > canvas.width ||
-    horse.y + size > canvas.height
-  ) {
-    alert("Bateu na parede 😭 Fim de jogo!");
-    location.reload();
-  }
-}
+      ctx.save(); // salva estado do canvas
 
-function checkApple() {
-  if (
-    horse.x < apple.x + size &&
-    horse.x + size > apple.x &&
-    horse.y < apple.y + size &&
-    horse.y + size > apple.y
-  ) {
-    score++;
-    apple.x = Math.floor(Math.random() * 20) * size;
-    apple.y = Math.floor(Math.random() * 20) * size;
-  }
-}
+      // mover origem para o centro do cavalo
+      ctx.translate(horse.x + size / 2, horse.y + size / 2);
 
-function drawScore() {
-  ctx.fillStyle = "black";
-  ctx.font = "16px Arial";
-  ctx.fillText("Pontos: " + score, 10, 20);
-}
+      if (direction === "right") {
+        // normal
+        ctx.drawImage(sprites[frame], -size / 2, -size / 2, size, size);
+      }
 
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (direction === "left") {
+        ctx.scale(-1, 1); // espelha horizontal
+        ctx.drawImage(sprites[frame], -size / 2, -size / 2, size, size);
+      }
 
-  moveHorse();
-  checkApple();
+      if (direction === "up") {
+        ctx.rotate(-Math.PI / 2);
+        ctx.drawImage(sprites[frame], -size / 2, -size / 2, size, size);
+      }
 
-  drawHorse();
-  drawApple();
-  drawScore();
+      if (direction === "down") {
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(sprites[frame], -size / 2, -size / 2, size, size);
+      }
 
-  requestAnimationFrame(gameLoop);
-}
+      ctx.restore(); // volta estado original
 
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp") { horse.dx = 0; horse.dy = -2; }
-  if (e.key === "ArrowDown") { horse.dx = 0; horse.dy = 2; }
-  if (e.key === "ArrowLeft") { horse.dx = -2; horse.dy = 0; }
-  if (e.key === "ArrowRight") { horse.dx = 2; horse.dy = 0; }
-});
+      // animação
+      if (horse.dx !== 0 || horse.dy !== 0) {
+        frameDelay++;
+        if (frameDelay > 6) {
+          frame++;
+          frameDelay = 0;
+          if (frame >= sprites.length) {
+            frame = 0;
+          }
+        }
+      }
+    }
+    
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-gameLoop();
+      if (gameOver) {
+        drawGameOver();
+      } else {
+        drawHorse();
+   
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+    document.addEventListener("keydown", e => {
+
+      if (gameOver && (e.key === "r" || e.key === "R")) {
+        resetGame();
+      }
+
+      if (!gameOver) {
+        if (e.key === "w" || e.key === "W") {
+          horse.dx = 0;
+          horse.dy = -size;
+          direction = "up";
+        }
+
+        if (e.key === "s" || e.key === "S") {
+          horse.dx = 0;
+          horse.dy = size;
+          direction = "down";
+        }
+
+        if (e.key === "a" || e.key === "A") {
+          horse.dx = -size;
+          horse.dy = 0;
+          direction = "left";
+        }
+
+        if (e.key === "d" || e.key === "D") {
+          horse.dx = size;
+          horse.dy = 0;
+          direction = "right";
+        }
+      }
+    });
+
+    
+    gameLoop()
+    
 </script>
 
 </body>
