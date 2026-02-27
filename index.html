@@ -26,7 +26,6 @@ const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
 
     const size = 55;
-    const tileCount = canvas.width / size;
 
     let gameOver = false;
     let score = 0;
@@ -39,8 +38,8 @@ const canvas = document.getElementById("game");
     };
 
     let apple = {
-      x: 8 * size,
-      y: 8 * size
+      x: 2 * size,
+      y: 2 * size
     };
 
     // ===== SPRITES =====
@@ -54,6 +53,9 @@ const canvas = document.getElementById("game");
     let frame = 0;
     let frameDelay = 0;
     let direction = "right";
+
+      const appleImg=new Image()
+      appleImg.src="assets/maza3.png"
     // ====================
 
     function drawHorse() {
@@ -97,7 +99,21 @@ const canvas = document.getElementById("game");
         }
       }
     }
-    
+
+    function drawApple(){ 
+      ctx.drawImage(appleImg,apple.x,apple.y,size,size)
+
+    }
+
+    //movendo personagem ou cavalo
+    function moveMiriri(){
+      horse.x+=horse.dx;
+       horse.y+=horse.dy;
+       if(horse.x<0 || horse.y<0 || horse.x>=canvas.width ||horse.x>=canvas.height ){
+        gameOver=true
+       }
+    }
+
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -105,7 +121,7 @@ const canvas = document.getElementById("game");
         drawGameOver();
       } else {
         drawHorse();
-   
+        drawApple();
       }
 
       requestAnimationFrame(gameLoop);
@@ -143,7 +159,11 @@ const canvas = document.getElementById("game");
       }
     });
 
-    
+     setInterval(()=>{
+      if(!gameOver){
+        moveMiriri()
+      }
+     },200)
     gameLoop()
     
 </script>
