@@ -104,6 +104,7 @@ const canvas = document.getElementById("game");
       ctx.drawImage(appleImg,apple.x,apple.y,size,size)
 
     }
+    
 
     //movendo personagem ou cavalo
     function moveMiriri(){
@@ -113,6 +114,32 @@ const canvas = document.getElementById("game");
         gameOver=true
        }
     }
+    function drawScore(){
+      ctx.fillStyle="Black";
+      ctx.font = "40px Arial";
+      ctx.fillText("Score: "+score,10,30)
+    }
+
+    function drawGameOver(){
+      ctx.fillStyle="rgba(0,0,0,0.6)";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      ctx.fillStyle="white";
+      ctx.font = "40px Arial";
+      ctx.fillText("O miriri desmaiou",canvas.width/2-150,canvas.height/2)
+
+      ctx.font = "40px Arial";
+      ctx.fillText("Pressione R para reiniciar",canvas.width/2-215,canvas.height/2+100)
+    }
+      function resetGame(){
+        horse.x= 5 * size
+        horse.y= 5 * size
+        horse.dx= 0
+        horse.dy= 0
+        gameOver=false
+      }
+
+
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -122,6 +149,7 @@ const canvas = document.getElementById("game");
       } else {
         drawHorse();
         drawApple();
+        drawScore();
       }
 
       requestAnimationFrame(gameLoop);
