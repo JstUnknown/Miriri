@@ -3,30 +3,46 @@
 <head>
   <title>Miriri Game 🐴</title>
   <style>
-    body {
-      background: #e8f5e9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+   body {
+    background: #e8f5e9;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
     canvas {
       background: white;
       border: 3px solid #4caf50;
     }
+
+    #score{
+      font-size: 40px;
+      font-family: Arial;
+      color: black;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 
-<canvas id="game" width="800" height="600"></canvas>
+<div id="score">Score: 0</div>
+
+
+<canvas id="game" width="770" height="550"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d"); 
 
     const size = 55;
+    
+    const scoreDisplay = document.getElementById("score");
 
+    const tileCountX = Math.floor(canvas.width / size)
+    const tileCountY = Math.floor(canvas.height / size)
+    
     let gameOver = false;
     let score = 0;
 
@@ -110,14 +126,26 @@ const canvas = document.getElementById("game");
     function moveMiriri(){
       horse.x+=horse.dx;
        horse.y+=horse.dy;
-       if(horse.x<0 || horse.y<0 || horse.x>=canvas.width ||horse.x>=canvas.height ){
-        gameOver=true
-       }
+       if (
+        horse.x < 0 ||
+        horse.y < 0 ||
+        horse.x >= tileCountX * size ||
+        horse.y >= tileCountY * size
+      ){
+        gameOver = true;
+      }
     }
+
+    function checkApple(){
+      if(horse.x===apple.x && horse.y===apple.y){
+        score++;
+       apple.x = Math.floor(Math.random() * tileCountX) * size
+       apple.y = Math.floor(Math.random() * tileCountY) * size
+      }
+    }
+
     function drawScore(){
-      ctx.fillStyle="Black";
-      ctx.font = "40px Arial";
-      ctx.fillText("Score: "+score,10,30)
+    scoreDisplay.textContent = "Score: " + score;
     }
 
     function drawGameOver(){
@@ -136,10 +164,27 @@ const canvas = document.getElementById("game");
         horse.y= 5 * size
         horse.dx= 0
         horse.dy= 0
+        score= 0
         gameOver=false
       }
 
+      function drawGrid(){
+  ctx.strokeStyle = "#eeeeee"
 
+  for(let x=0;x<canvas.width;x+=size){
+    ctx.beginPath()
+    ctx.moveTo(x,0)
+    ctx.lineTo(x,canvas.height)
+    ctx.stroke()
+  }
+
+  for(let y=0;y<canvas.height;y+=size){
+    ctx.beginPath()
+    ctx.moveTo(0,y)
+    ctx.lineTo(canvas.width,y)
+    ctx.stroke()
+  }
+}
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -150,6 +195,7 @@ const canvas = document.getElementById("game");
         drawHorse();
         drawApple();
         drawScore();
+        drawGrid();
       }
 
       requestAnimationFrame(gameLoop);
@@ -189,7 +235,8 @@ const canvas = document.getElementById("game");
 
      setInterval(()=>{
       if(!gameOver){
-        moveMiriri()
+        moveMiriri();
+        checkApple()
       }
      },200)
     gameLoop()
