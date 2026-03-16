@@ -300,7 +300,7 @@ function gameLoop() {
 
 // CONTROLE TECLADO
 document.addEventListener("keydown", e => {
-
+    if(e.repeat)return
 
     if (gameOver && (e.key === "r" || e.key === "R")) {
     resetGame()
